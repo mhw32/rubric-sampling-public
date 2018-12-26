@@ -1,0 +1,41 @@
+{
+  "name": "Repeat",
+  "children": [
+    {
+      "name": "GetRepeat",
+      "weight": 70,
+      "children": [
+        {
+          "name": "GetThreeSides",
+          "weight": 70
+        },
+        {
+          "name": "DontGetThreeSides",
+          "weight": 30
+        },
+        {
+          "name": "NoRepeatCounterAttempt",
+          "weight": 20
+        }
+      ]
+    },
+    {
+      "name": "NoRepeat",
+      "weight": 15
+    },
+    {
+      "name": "MultipleBodies",
+      "weight": 15,
+      "children": [
+        {
+          "name": "GetThreeSides",
+          "weight": 50
+        },
+        {
+          "name": "DontGetThreeSides",
+          "weight": 50
+        }
+      ]
+    }
+  ]
+}

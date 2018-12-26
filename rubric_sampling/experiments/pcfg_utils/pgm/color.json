@@ -1,0 +1,23 @@
+{
+	"name":"Color",
+	"children": [
+		{
+			"name":"NoColor",
+			"weight":95
+		},
+		{
+			"name":"AddColor",
+			"weight":5,
+			"children" : [
+				{
+					"name":"AddRandomColor",
+					"weight":20
+				},
+				{
+					"name":"AddRedColor",
+					"weight":80
+				}
+			]
+		}
+	]
+}

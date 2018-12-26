@@ -1,0 +1,13 @@
+{
+	"name":"Equilateral",
+	"children": [
+		{
+			"name":"GetEqualateral",
+			"weight":40
+		},
+		{
+			"name":"DontGetEqualateral",
+			"weight":70
+		}
+	]
+}

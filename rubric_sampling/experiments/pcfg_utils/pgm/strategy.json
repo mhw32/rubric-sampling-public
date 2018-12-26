@@ -1,0 +1,27 @@
+{
+	"name":"Strategy",
+	"children": [
+		{
+			"name":"ClockwisePlan",
+			"weight":2,
+			"children": [
+				{
+					"name":"ClockwiseExtraTurn",
+					"weight":50
+				},
+				{
+					"name":"NoClockwiseExtraTurn",
+					"weight":50
+				}
+			]
+		},
+		{
+			"name":"CounterClockwisePlan",
+			"weight":100
+		},
+		{
+			"name":"NoPlan",
+			"weight":5
+		}
+	]
+}

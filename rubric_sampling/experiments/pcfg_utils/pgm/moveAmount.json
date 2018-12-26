@@ -1,0 +1,17 @@
+{
+	"name":"MoveAmount",
+	"children": [
+		{
+			"name":"Move50",
+			"weight":60
+		},
+		{
+			"name":"MoveDefault",
+			"weight":40
+		},
+		{
+			"name":"MoveConfused",
+			"weight":20
+		}
+	]
+}
