@@ -40,9 +40,9 @@ def removeColors(ast):
     @param ast: abstract syntax tree
     """
     for child in ast.children:
-		removeColors(child)
+        removeColors(child)
 
-	newChildren = []
+        newChildren = []
 	for child in ast.children:
 		if child.rootName != 'SetColor':
 			newChildren.append(child)

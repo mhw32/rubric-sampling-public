@@ -2,7 +2,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
+import os
 import numpy as np
+from ..utils import DATASETS_ROOT
 
 
 def get_label_params(problem_id):
@@ -66,7 +68,7 @@ def get_pcfg_params(problem_id, author='teacher', random=False):
 
     if author == 'teacher':
         return np.random.rand(len(TEACHER_PCFG_PARAMS)) if random else TEACHER_PCFG_PARAMS
-    elif author == 'student'
+    elif author == 'student':
         return np.random.rand(len(STUDENT_PCFG_PARAMS)) if random else STUDENT_PCFG_PARAMS
     else:
         raise Exception('author %s not supported.' % author)
@@ -108,23 +110,7 @@ def get_codeorg_data_root(problem_id, dataset='unlabeled'):
     @param problem_id: integer 
                        1|2|3|4|5|6|7|8
     @param dataset: string
-                    unlabeled|annotated|synthetic
+                    unlabeled|annotated|synthetic|raw
     """
-    if problem_id == 1:
-        from .p1_utils import DATA_ROOT
-    elif problem_id == 2:
-        from .p2_utils import DATA_ROOT
-    elif problem_id == 3:
-        from .p3_utils import DATA_ROOT
-    elif problem_id == 4:
-        from .p4_utils import DATA_ROOT
-    elif problem_id == 5:
-        from .p5_utils import DATA_ROOT
-    elif problem_id == 6:
-        from .p6_utils import DATA_ROOT
-    elif problem_id == 7:
-        from .p7_utils import DATA_ROOT
-    elif problem_id == 8:
-        from .p8_utils import DATA_ROOT
+    return os.path.join(DATASETS_ROOT, 'codeorg', dataset, 'p%d' % problem_id)
 
-    return os.path.join(DATA_ROOT, dataset)

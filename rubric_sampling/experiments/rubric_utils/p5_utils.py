@@ -46,4 +46,3 @@ RUBRIC_DIR = os.path.join(os.path.dirname(__file__), '../../../rubrics')
 STUDENT_PCFG_PATH = os.path.join(RUBRIC_DIR, 'p5', 'student.cfg')
 TEACHER_PCFG_PATH = None
 
-DATA_ROOT = os.path.join(DATASETS_ROOT, 'codeorg', 'p5')

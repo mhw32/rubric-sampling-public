@@ -6,6 +6,7 @@ import os
 import json
 import cPickle
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
 
 from .utils import (
@@ -15,7 +16,7 @@ from .utils import (
     convert_V2_to_V3,
     labels_to_numpy,
 )
-from .rubric_utils.load_params import get_label_params
+from .rubric_utils.load_params import get_label_params, get_codeorg_data_root
 
 
 def preprocess_source_pickle(source_pickle):
@@ -93,7 +94,7 @@ def preprocess_synthetic_samples(problem_id, sample_pickle):
     return programs, labels
 
 
-def preprocess_human_annotations(problem_id, source_pickle, annotation_pickle):
+def preprocess_human_annotations_p1(problem_id, source_pickle, annotation_pickle):
     r"""Similar to <preprocess_source_pickle> but for programs where
     humans annotated each program.
 
@@ -138,17 +139,72 @@ def preprocess_human_annotations(problem_id, source_pickle, annotation_pickle):
     return programs, labels
 
 
+def preprocess_human_annotations_p8(problem_id, source_pickle, annotation_csv):
+    r"""The annotations for p8 are stored in CSV form so we need slightly 
+    different logic to handle it.
+
+    @param problem_id: integer
+                       1|2|3|4|5|6|7|8
+    @param source_pickle: cPickle file
+                          contains unique AST by index.
+    @param annotation_csv: CSV file
+                           contains annotations per cell.
+    """
+    label_dim, ix_to_label, label_to_ix, _, _ = get_label_params(problem_id)
+
+    annotation_df = pd.read_csv(annotation_csv)
+    annotation_df = annotation_df.fillna(0)
+    n_annotations = len(annotation_df)
+
+    with open(source_pickle) as fp:
+        ast_programs = cPickle.load(fp)
+
+    programs = []
+    program2label = {}
+
+    for i in tqdm(range(n_annotations)):
+        annotation_frame = annotation_df.iloc[i]
+        program_id = int(annotation_frame['ID'])
+        targets = [int(annotation_frame[ix_to_label[ix]])
+                   for ix in xrange(label_dim)]
+
+        ast = ast_programs[program_id]
+        removeColors(ast)
+        ast = flatten_ast(ast)
+        program = ' '.join(ast)
+
+        programs.append(program)
+        program2label[program] = targets
+
+    programs = list(set(programs))
+    labels = [program2label[prog] for prog in programs]
+ 
+    return programs, labels
+
+
 if __name__ == "__main__":
     # run this file to get things set up for training!
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('dataset', type=str, help='unlabeled|annotated|synthetic')
     parser.add_argument('problem_id', type=int, help='1|2|3|4|5|6|7|8')
-    parser.add_argument('out_dir', type=str, help='where to dump outputs')
-    parser.add_argument('--source-pickle', type=str, help='path to the source pickle file')
-    parser.add_argument('--annotation-pickle', type=str, help='path to the annotation pickle file')
     parser.add_argument('--sample-pickle', type=str, help='path to the sample pickle file')
     args = parser.parse_args()
+    data_root = get_codeorg_data_root(args.problem_id, 'raw')
+    args.out_dir = get_codeorg_data_root(args.problem_id, args.dataset)
+    args.source_pickle = os.path.join(data_root, 'sources-%d.pickle' % args.problem_id)
+
+    if args.dataset == 'synthetic':
+        assert args.sample_pickle is not None
+
+    if args.problem_id == 1:
+        args.annotation_pickle = os.path.join(data_root, 'p1-human-labels-321.pickle')
+        preprocess_human_annotations = preprocess_human_annotations_p1
+    elif args.problem_id == 8:
+        args.annotation_pickle = os.path.join(data_root, 'p9-human-labels-302.csv')
+        preprocess_human_annotations = preprocess_human_annotations_p8
+    else:
+        assert args.dataset != 'annotated', "only have annotations for P1, P8"
 
     if not os.path.isdir(args.out_dir):
         os.makedirs(args.out_dir)
