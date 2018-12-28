@@ -6,7 +6,7 @@
 # Copyright (C) 2001-2017 NLTK Project
 # Author: Edward Loper <edloper@gmail.com>
 #         Steven Bird <stevenbird1@gmail.com>
-#         Peter Ljunglöf <peter.ljunglof@gu.se>
+#         Peter Ljunglof <peter.ljunglof@gu.se>
 #         Nathan Bodenstab <bodenstab@cslu.ogi.edu> (tree transforms)
 # URL: <http://nltk.org/>
 # For license information, see LICENSE.TXT

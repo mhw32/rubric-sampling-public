@@ -7,7 +7,7 @@
 # Author: Steven Bird <stevenbird1@gmail.com>
 #         Edward Loper <edloper@gmail.com>
 #         Jason Narad <jason.narad@gmail.com>
-#         Peter Ljunglöf <peter.ljunglof@heatherleaf.se>
+#         Peter Ljunglof <peter.ljunglof@heatherleaf.se>
 # URL: <http://nltk.org/>
 # For license information, see LICENSE.TXT
 # Adapted By: Mike Wu <me@mikehwu.com>

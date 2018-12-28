@@ -4,10 +4,9 @@ from __future__ import absolute_import
 
 
 # a public static method
-def toPseudoCode(ast):
+def toBlocky(ast):
     t = PseudoCodeTranslator()
     return t.toPseudoCode(ast)
-
 
 # Class: Psuedo Code Translator
 # ------------------------
@@ -40,31 +39,29 @@ class PseudoCodeTranslator():
                 param2 = self.getValue(child.children[1])
                 codestr += self.getIndent(indent) + blockType
                 codestr += param1 + "("
-                codestr += param2 + ')\n'
+                codestr += param2 + ') \n'
 
-            elif blockType == 'SetColor':
+            elif blockType in ['SetColor', 'DrawWidth', 'Alpha']:
                 color = child.children[0].children[0].rootName
                 codestr += self.getIndent(indent) + blockType  + '('
-                codestr += color + ')\n'
+                codestr += color + ') \n'
 
             # For loops
             elif blockType == 'Repeat':
                 numTimes = self.getValue(child.children[0])
                 codestr += self.getIndent(indent)
-                codestr += 'Repeat(' + str(numTimes) + '):\n'
-
-                if len(child.children) < 2:
-                    raise Exception('repeat missing body')
-
+                codestr += 'Repeat(' + str(numTimes) + ') { \n'
                 if len(child.children) >= 2:
                     body = child.children[1]
                     codestr += self.expandCodeBlock(indent + 1, body)
+                codestr += '} '
 
             # For loops
             elif blockType == 'For':
                 startValue = self.getValue(child.children[0])
                 endValue = self.getValue(child.children[1])
                 deltaValue = self.getValue(child.children[2])
+    
                 codestr += self.getIndent(indent)
                 line = 'For('
                 line += 'x='+ str(startValue) + ', '
@@ -115,6 +112,11 @@ class PseudoCodeTranslator():
             elif blockType == 'invoke':
                 methodName = block['method']
                 codestr += self.getIndent(indent) + methodName + '()\n'
+
+            # Somehow these can end up as root types...
+            elif blockType == 'Number': return ''
+            elif blockType == 'Variable': return ''
+            elif blockType == 'Arithmetic': return ''
 
             # Opps! There must have been a parse error.
             else:
@@ -174,22 +176,13 @@ class PseudoCodeTranslator():
             raise Exception("unknown type: \"" + blockType + "\"")
         return codestr
 
-    # Function: Get Iter Var Name
-    # -----------------
-    # Make sure that each repeat statement gets a unique iteration
-    # variable (eg iter0, iter1 etc..)
-    def getIterVarName(self):
-        varName = 'iter' + str(self.iterVarNameIndex)
-        self.iterVarNameIndex += 1
-        return varName
-
     # Function: Get Indent
     # -----------------
     # Turns a code block depth into an indent string.
     def getIndent(self, depth):
         indentStr = ''
         for i in range(depth):
-            indentStr += '  '
+            indentStr += ' '
         return indentStr
 
     # Function: Is Condition Test
@@ -211,3 +204,4 @@ class PseudoCodeTranslator():
         if blockType == 'Turn': return True
         if blockType == 'SetColor': return True
         return False
+

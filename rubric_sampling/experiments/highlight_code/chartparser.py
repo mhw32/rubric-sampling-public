@@ -13,8 +13,8 @@ from tqdm import tqdm
 from .grammar import PCFG
 from nltk.parse.viterbi import ViterbiParser
 
-from ..pcfg_utils.simulate import loadCfg
-from ..pcfg_utils.treeToCode.astToBlocky import toBlocky
+from ..pcfg_utils.models.simulate import loadCfg
+from ..pcfg_utils.models.treeToBlocky import toBlocky
 from ..utils import flatten_ast, PCFG_UTILS_ROOT
 sys.path.append(PCFG_UTILS_ROOT)
 

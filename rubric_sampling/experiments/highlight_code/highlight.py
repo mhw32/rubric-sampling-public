@@ -20,7 +20,7 @@ from ..rubric_utils.load_params import (
 from .chartparser import load_indexed_asts
 from .chartparser import get_integer_domain
 from .chartparser import build_pcfg
-from ..pcfg_utils.simulate import loadCfg, reset_prodIndex
+from ..pcfg_utils.models.simulate import loadCfg, reset_prodIndex
 
 
 def extract_regions_from_tree(tree, domain):
