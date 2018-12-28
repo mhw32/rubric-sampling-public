@@ -13,7 +13,7 @@ import torch.optim as optim
 import torch.utils.data as data
 import torch.nn.functional as F
 
-from .models import ProgramRNN
+from .models import ProgramMVAE
 from .datasets import load_dataset
 from .config import default_hyperparams
 from .loss import p_program_label_melbo, p_program_elbo
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     parser.add_argument('dataset', type=str, help='annotated|synthetic')
     parser.add_argument('problem_id', type=int, help='1|2|3|4|5|6|7|8')
     parser.add_argument('out_dir', type=str, help='where to save outputs')
-    parser.add_argument('--add-unlabeled-data', store='true', default=False,
+    parser.add_argument('--add-unlabeled-data', action='store_true', default=False,
                         help='learn with unlabeled data [default: False]')
     parser.add_argument('--cuda', action='store_true', default=False,
                         help='enables CUDA training [default: False]')
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     test_loader = data.DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
 
     if args.add_unlabeled_data:
-        unlabeled dataset = load_dataset(   'unlabeled', args.problem_id, 'train', vocab=train_dataset.vocab, 
+        unlabeled_dataset = load_dataset(   'unlabeled', args.problem_id, 'train', vocab=train_dataset.vocab, 
                                             max_seq_len=args.max_seq_len, min_occ=args.min_occ)
         unlabeled_loader = data.DataLoader( unlabeled_dataset, batch_size=args.batch_size, 
                                             # drop last bc we want to have the right size
@@ -117,7 +117,7 @@ if __name__ == "__main__":
             optimizer.zero_grad()
             seq_logits_xy, label_out_xy, z_xy, z_mu_xy, z_logvar_xy = model(seq, length, label)
             seq_logits_x, label_out_x, z_x, z_mu_x, z_logvar_x = model(seq, length, None)
-            seq_logits_y, label_out_y, z_y, z_mu_y, z_logvar_y = model(seq, length, label, hide_text=True)
+            seq_logits_y, label_out_y, z_y, z_mu_y, z_logvar_y = model(seq, length, label, hide_seq=True)
 
             elbo = p_program_label_melbo(   seq, length, label,
                                             seq_logits_xy, label_out_xy, z_xy, z_mu_xy, z_logvar_xy,
@@ -144,7 +144,8 @@ if __name__ == "__main__":
 
             # greedily sample from the conditional distribution to make a prediction
             label_pred = model.label_decoder(z_mu_x)
-            acc = torch.mean(torch.round(label_pred).detach() == label.detach())
+            acc = np.mean(torch.round(label_pred).cpu().detach().numpy() == 
+                          label.cpu().detach().numpy())
             acc_meter.update(acc.item(), batch_size)
 
             if batch_idx % args.log_interval == 0:
@@ -185,7 +186,7 @@ if __name__ == "__main__":
 
                 z_mu_x, _ = model.inference(seq, length, None)
                 label_pred = model.label_decoder(z_mu_x)
-                acc = torch.mean(torch.round(label_pred).detach() == label.detach())
+                acc = np.mean(torch.round(label_pred).cpu().numpy() == label.cpu().numpy())
                 acc_meter.update(acc.item(), batch_size)
 
                 pbar.update()
@@ -232,8 +233,6 @@ if __name__ == "__main__":
             'state_dict': model.state_dict(),
             'cmd_line_args': args,
             'vocab': train_dataset.vocab,
-            'max_seq_length': max_seq_length,
-            'min_occ': min_occ,
         }, is_best, folder=args.out_dir)
 
         np.save(os.path.join(args.out_dir, 'train_elbo.npy'), track_train_elbo)

@@ -42,15 +42,15 @@ if __name__ == "__main__":
     args.cuda = args.cuda and torch.cuda.is_available()
     device = torch.device('cuda' if args.cuda else 'cpu')
 
-    # reproducibility
-    torch.manual_seed(args.seed)
-    np.random.seed(args.seed)
-
     checkpoint = torch.load(args.checkpoint_path)
     train_args = checkpoint['cmd_line_args']
     state_dict = checkpoint['state_dict']
     vocab = checkpoint['vocab']
-    
+   
+    # reproducibility
+    torch.manual_seed(train_args.seed)
+    np.random.seed(train_args.seed)
+
     sos_idx = vocab['w2i'][SOS_TOKEN]
     eos_idx = vocab['w2i'][EOS_TOKEN]
     pad_idx = vocab['w2i'][PAD_TOKEN]

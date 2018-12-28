@@ -100,6 +100,7 @@ class ProgramMVAE(nn.Module):
         self.sos_idx = sos_idx
         self.eos_idx = eos_idx
         self.pad_idx = pad_idx
+        self.unk_idx = unk_idx
         self.word_dropout = word_dropout
         self.num_layers = num_layers
 
@@ -118,7 +119,7 @@ class ProgramMVAE(nn.Module):
         self.label_decoder = LabelDecoder(
             self.z_dim, self.label_dim, hidden_dim=self.hidden_dim)
         
-    def reparametrize(self, z_mu, z_logvar):
+    def reparameterize(self, z_mu, z_logvar):
         std = torch.exp(0.5 * z_logvar)
         eps = torch.randn_like(std)
         return eps.mul(std).add_(z_mu)
@@ -170,8 +171,8 @@ class ProgramMVAE(nn.Module):
         log_w = []
         for i in xrange(n_samples):
             z_i = self.reparameterize(z_mu, z_logvar)
-            x_logits_i = self.decode_text(z_i, seq, length)
-            y_out_i = self.decode_label(z_i)
+            x_logits_i = self.program_decoder(z_i, seq, length)
+            y_out_i = self.label_decoder(z_i)
 
             log_p_x_given_z_i = categorical_program_log_pdf(seq[:, 1:], x_logits_i[:, :-1])
             log_p_y_given_z_i = bernoulli_log_pdf(label, y_out_i)
@@ -187,13 +188,13 @@ class ProgramMVAE(nn.Module):
 
         return log_p_x_y
 
-    def get_text_marginal(self, seq, length, n_samples=100):
+    def get_program_marginal(self, seq, length, n_samples=100):
         z_mu, z_logvar = self.inference(seq, length, None)
 
         log_w = []
         for i in xrange(n_samples):
             z_i = self.reparameterize(z_mu, z_logvar)
-            seq_logits_i = self.decode_text(z_i, seq, length)
+            seq_logits_i = self.program_decoder(z_i, seq, length)
 
             # probability of text is product of probabilities of each word
             log_p_x_given_z_i = categorical_program_log_pdf(seq[:, 1:], seq_logits_i[:, :-1])
@@ -215,7 +216,7 @@ class ProgramMVAE(nn.Module):
         log_w = []
         for i in xrange(n_samples):
             z_i = self.reparameterize(z_mu, z_logvar)
-            y_out_i = self.decode_label(z_i)
+            y_out_i = self.label_decoder(z_i)
 
             log_p_y_given_z_i = bernoulli_log_pdf(y, y_out_i)
             log_q_z_given_y_i = gaussian_log_pdf(z_i, z_mu, z_logvar)
@@ -351,8 +352,8 @@ class ProgramDecoder(nn.Module):
         if self.word_dropout > 0:
             # randomly replace with unknown tokens
             prob = torch.rand(seq.size())
-            prob[(seq.cpu().data - self.sos_index) & \
-                 (seq.cpu().data - self.pad_index) == 0] = 1
+            prob[(seq.cpu().data - self.sos_idx) & \
+                 (seq.cpu().data - self.pad_idx) == 0] = 1
             mask_seq = seq.clone()
             mask_seq[(prob < self.word_dropout).to(z.device)] = self.unk_idx
             seq = mask_seq
@@ -437,7 +438,7 @@ class ProgramDecoder(nn.Module):
                 predicted_lst = predicted_npy.tolist()
 
                 for w, so_far in zip(predicted_lst, sampled_ids):
-                    if so_far[-1] != self.eos_index:
+                    if so_far[-1] != self.eos_idx:
                         so_far.append(w)
 
                 inputs = predicted.transpose(0, 1)          # inputs: (L=1,B)

@@ -40,14 +40,14 @@ if __name__ == "__main__":
     args.cuda = args.cuda and torch.cuda.is_available()
     device = torch.device('cuda' if args.cuda else 'cpu')
 
-    # reproducibility
-    torch.manual_seed(args.seed)
-    np.random.seed(args.seed)
-
     checkpoint = torch.load(args.checkpoint_path)
     train_args = checkpoint['cmd_line_args']
     state_dict = checkpoint['state_dict']
     vocab = checkpoint['vocab']
+
+    # reproducibility
+    torch.manual_seed(train_args.seed)
+    np.random.seed(train_args.seed)
 
     label_dim, _, _, loop_ix, geometry_ix = get_label_params(train_args.problem_id)
 

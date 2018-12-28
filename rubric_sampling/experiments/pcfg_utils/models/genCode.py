@@ -9,8 +9,8 @@ import operator
 import math
 import copy
 
-from tree import Tree
-import blocky as blocky
+from .tree import Tree
+import .blocky as blocky
 
 PGM_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), 'pgm'))
 

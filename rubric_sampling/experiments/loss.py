@@ -6,6 +6,7 @@ import math
 import numpy as np
 
 import torch
+import torch.nn.functional as F
 
 LOG2PI = float(np.log(2.0 * math.pi))
 
@@ -25,7 +26,7 @@ def p_program_label_melbo(  seq, length, label,
     p_y = p_label_elbo(label, label_out_y, z_y, z_mu_y, z_logvar_y,
                        annealing_factor=annealing_factor)
 
-    MELBO = seq_logits_x + lambda_program * p_x + lambda_label * p_y
+    MELBO = p_x_y + lambda_program * p_x + lambda_label * p_y
 
     return MELBO
 
@@ -39,7 +40,7 @@ def p_program_label_elbo(   seq, seq_logits, label, label_out, z, z_mu, z_logvar
                              log p(z) - log q(z|x,y)]
     """
     log_p_x_given_z = -categorical_program_log_pdf(seq[:, 1:], seq_logits[:, :-1])
-    log_p_y_given_z = -bernoulli_log_pdf(label, label_out_i)
+    log_p_y_given_z = -bernoulli_log_pdf(label, label_out)
 
     # Kingma and Welling. Auto-Encoding Variational Bayes. ICLR, 2014
     # https://arxiv.org/abs/1312.6114

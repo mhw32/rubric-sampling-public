@@ -20,6 +20,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
+from .models import ProgramMVAE
 from .utils import (
     idx2word, 
     tensor_to_labels, 
@@ -28,6 +29,8 @@ from .utils import (
     PAD_TOKEN,
     UNK_TOKEN,
 )
+from .rubric_utils.load_params import get_label_params
+
 
 if __name__ == "__main__":
     import argparse
@@ -43,6 +46,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     args.cuda = args.cuda and torch.cuda.is_available()
     device = torch.device('cuda' if args.cuda else 'cpu')
+
+    if not os.path.isdir(args.out_dir):
+        os.makedirs(args.out_dir)
 
     checkpoint = torch.load(args.checkpoint_path)
     train_args = checkpoint['cmd_line_args']
@@ -119,4 +125,4 @@ if __name__ == "__main__":
     pbar.close()
 
     with open(os.path.join(args.out_dir, 'samples_mvae.pickle'), 'wb') as fp:
-        cPickle.dump({'program': programs, 'label': labels}, fp)
+        cPickle.dump({'programs': programs, 'labels': labels}, fp)

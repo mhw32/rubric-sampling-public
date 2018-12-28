@@ -17,5 +17,6 @@ default_hyperparams = {
     'lambda_program': 1,
     'lambda_label': 10,
     'lambda_unlabeled': 1,
+    'word_dropout': 0.5,
     'seed': 1,
 }

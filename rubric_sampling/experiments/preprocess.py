@@ -72,19 +72,21 @@ def preprocess_synthetic_samples(problem_id, sample_pickle):
 
     with open(sample_pickle, 'rb') as fp:
         data = cPickle.load(fp)
-        n_rows = len(data)
+        programs = data['programs']
+        labels = data['labels']
+        n_rows = len(programs)
 
-    programs = []
+    _programs = []
     program2label = {}
 
     pbar = tqdm(total=n_rows)
-    for program, values in data.iteritems():
+    for program, label in zip(programs, labels):
         # don't use newline separation since that will print out
         # as several lines and we lose structure.
-        label = values.keys()[0].strip().split('\n')
-        label = labels_to_numpy(label, label_dim, label_to_ix).tolist()
+        label_lst = label.split(',')
+        label = labels_to_numpy(label_lst, label_dim, label_to_ix).tolist()
 
-        programs.append(program)
+        _programs.append(program)
         program2label[program] = label
 
         pbar.update()

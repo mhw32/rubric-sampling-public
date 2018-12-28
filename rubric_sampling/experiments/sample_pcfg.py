@@ -8,7 +8,7 @@ import os
 import sys
 import cPickle
 
-from .pcfg_utils.simulate import generateTrajectories
+from .pcfg_utils.models.simulate import generateTrajectories
 from .rubric_utils.load_params import get_pcfg_params, get_pcfg_path
 
 
@@ -23,22 +23,25 @@ if __name__ == "__main__":
                         help='use random parameters for PCFG [default: expert parameters]')
     # generate a lot b/c we only keep unique
     parser.add_argument('--num-samples', type=int, default=1000000,
-                        help='number of data points to sample [default: 1e6')
+                        help='number of data points to sample [default: 1e6]')
     args = parser.parse_args()
 
-    theta = get_pcfg_params(args.problem_id, author= 'student' if args.student else 'teacher', 
-                            random=args.random_theta)
-    cfg_path = get_pcfg_path(args.problem_id, author= 'student' if args.student else 'teacher')
-    program2count, program2label = generateTrajectories(theta, args.num_samples, cfg_path, verbose=True)
-
-    label_map_path = os.path.join(args.out_dir, 'labels-%d.pickle' % args.problem_id)
-    count_map_path = os.path.join(args.out_dir, 'counts-%d.pickle' % args.problem_id)
+    author = 'student' if args.student_pcfg else 'teacher'
+    theta = get_pcfg_params(args.problem_id, author=author, random=args.random_theta)
+    cfg_path = get_pcfg_path(args.problem_id, author=author)
+    program2count, program2label = generateTrajectories(theta, args.num_samples, cfg_path)
 
     if not os.path.isdir(args.out_dir):
         os.makedirs(args.out_dir)
 
-     with open(label_map_path, 'wb') as fp:
-        cPickle.dump(program2label, fp)
+    programs = [program for program in program2count.keys()]
+    counts = [program2count[program] for program in programs]
+    labels = [','.join(program2label[program].keys()[0].split('\n')) for program in programs]
 
-    with open(count_map_path, 'wb') as fp:
-        cPickle.dump(program2count, fp)
+    with open(os.path.join(args.out_dir, 'samples_pcfg.pickle'), 'wb') as fp:
+        cPickle.dump({
+            'programs': programs, 
+            'counts': counts,
+            'labels': labels,
+        }, fp)
+
