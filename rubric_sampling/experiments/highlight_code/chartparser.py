@@ -521,7 +521,7 @@ def sanity_test():
         get_codeorg_data_root,
     )
 
-    data_root = get_codeorg_data_root(1, 'unlabeled')
+    data_root = get_codeorg_data_root(1, 'raw')
     theta = get_pcfg_params(1, author='teacher', random=False)
     cfg_path = get_pcfg_path(1, author='teacher')
 

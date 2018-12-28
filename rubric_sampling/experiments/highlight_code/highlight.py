@@ -82,7 +82,7 @@ if __name__ == "__main__":
                         help='use random parameters for PCFG [default: expert parameters]')
     args = parser.parse_args()
 
-    data_root = get_codeorg_data_root(1, 'unlabeled')
+    data_root = get_codeorg_data_root(1, 'raw')
     author = 'student' if args.student_pcfg else 'teacher'
     theta = get_pcfg_params(args.problem_id, author=author, random=args.random_theta)
     cfg_path = get_pcfg_path(args.problem_id, author=author)
