@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import os
+import sys
 import json
 import cPickle
 import numpy as np
@@ -15,8 +16,10 @@ from .utils import (
     removeColors,
     convert_V2_to_V3,
     labels_to_numpy,
+    PCFG_UTILS_ROOT,
 )
 from .rubric_utils.load_params import get_label_params, get_codeorg_data_root
+sys.path.append(PCFG_UTILS_ROOT)
 
 
 def preprocess_source_pickle(source_pickle):
@@ -201,7 +204,7 @@ if __name__ == "__main__":
         args.annotation_pickle = os.path.join(data_root, 'p1-human-labels-321.pickle')
         preprocess_human_annotations = preprocess_human_annotations_p1
     elif args.problem_id == 8:
-        args.annotation_pickle = os.path.join(data_root, 'p9-human-labels-302.csv')
+        args.annotation_pickle = os.path.join(data_root, 'p8-human-labels-302.csv')
         preprocess_human_annotations = preprocess_human_annotations_p8
     else:
         assert args.dataset != 'annotated', "only have annotations for P1, P8"

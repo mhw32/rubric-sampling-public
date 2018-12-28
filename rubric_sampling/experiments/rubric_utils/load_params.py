@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import os
+import cPickle
 import numpy as np
 from ..utils import DATASETS_ROOT
 
@@ -113,4 +114,28 @@ def get_codeorg_data_root(problem_id, dataset='unlabeled'):
                     unlabeled|annotated|synthetic|raw
     """
     return os.path.join(DATASETS_ROOT, 'codeorg', dataset, 'p%d' % problem_id)
+
+
+def get_length_distribution(problem_id):
+    data_root = get_codeorg_data_root(problem_id, dataset='unlabeled')
+    train_path = os.path.join(data_root, 'train.pickle')
+    with open(train_path) as fp:
+        data = cPickle.load(fp)
+        data = data['programs']
+
+    counts = []
+    for row in data:
+        row = row.replace('\n','')
+        words = row.split()
+        counts.append(len(words))
+
+    counts = np.array(counts)
+    return np.bincount(counts)
+
+
+def get_max_seq_len(problem_id):
+    length_dist = get_length_distribution(problem_id)
+    max_seq_len = np.sum(np.cumsum(length_dist) <= np.sum(length_dist)  * 0.999)
+
+    return max_seq_len
 

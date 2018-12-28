@@ -19,7 +19,7 @@ from .models import ProgramRNN
 from .utils import AverageMeter, save_checkpoint, merge_args_with_dict
 from .datasets import load_dataset
 from .config import default_hyperparams
-from .rubric_utils.load_params import get_label_params
+from .rubric_utils.load_params import get_label_params, get_max_seq_len
 
 
 if __name__ == "__main__":
@@ -34,6 +34,7 @@ if __name__ == "__main__":
     args.cuda = args.cuda and torch.cuda.is_available()
     merge_args_with_dict(args, default_hyperparams)
     device = torch.device('cuda' if args.cuda else 'cpu')
+    args.max_seq_len = get_max_seq_len(args.problem_id)
 
     label_dim, _, _, _, _ = get_label_params(args.problem_id)
 
@@ -81,8 +82,8 @@ if __name__ == "__main__":
             loss_meter.update(loss.item(), batch_size)
 
             optimizer.step()
-            acc = torch.mean(torch.round(label_out).detach() == label.detach())
-            acc_meter.update(acc.item(), batch_size)
+            acc = np.mean(torch.round(label_out).detach().numpy() == label.detach().numpy())
+            acc_meter.update(acc, batch_size)
 
             if batch_idx % args.log_interval == 0:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tAccuracy: {:.4f}'.format(
@@ -114,8 +115,8 @@ if __name__ == "__main__":
                     loss = F.binary_cross_entropy(label_out, label)
                     loss_meter.update(loss.item(), batch_size)
 
-                    acc = torch.mean(torch.round(recon_label) == label)
-                    test_acc_meter.update(acc.item(), batch_size)
+                    acc = np.mean(torch.round(label_out.cpu()).numpy() == label.cpu().numpy())
+                    acc_meter.update(acc, batch_size)
                     pbar.update()
 
         print('====> {} Epoch: {}\tLoss: {:.4f}\tAccuracy: {:.4f}'.format(

@@ -15,8 +15,8 @@ from .loss import (
     unit_gaussian_log_pdf,
     bernoulli_log_pdf,
     categorical_program_log_pdf,
-    log_mean_exp,
 )
+from .utils import log_mean_exp
 
 
 class ProgramRNN(nn.Module):
@@ -518,7 +518,7 @@ class LabelDecoder(nn.Module):
 
     def forward(self, z):
         # we assume binary labels
-        return F.sigmoid(self.net(z))
+        return torch.sigmoid(self.net(z))
 
 
 class ProductOfExperts(nn.Module):
@@ -540,8 +540,8 @@ class ProductOfExperts(nn.Module):
 
 class Swish(nn.Module):
     def forward(self, x):
-        return x * F.sigmoid(x)
+        return x * torch.sigmoid(x)
 
 
 def swish(x):
-    return x * F.sigmoid(x)
+    return x * torch.sigmoid(x)

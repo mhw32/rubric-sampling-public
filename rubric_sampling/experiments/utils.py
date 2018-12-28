@@ -24,6 +24,7 @@ ZIPF_CLASS = {'head': 0, 'body': 1, 'tail': 2}
 EXPERIMENTS_ROOT = os.path.realpath(os.path.dirname(__file__))
 RUBRICS_ROOT = os.path.realpath(os.path.join(EXPERIMENTS_ROOT, '../../rubrics'))
 DATASETS_ROOT = os.path.realpath(os.path.join(EXPERIMENTS_ROOT, '../../datasets'))
+PCFG_UTILS_ROOT = os.path.realpath(os.path.join(EXPERIMENTS_ROOT, 'pcfg_utils'))
 
 
 # --- utilities for reading and cleaning abstract syntax trees ---

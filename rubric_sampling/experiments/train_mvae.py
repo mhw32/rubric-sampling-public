@@ -26,7 +26,7 @@ from .utils import (
     PAD_TOKEN,
     UNK_TOKEN,
 )
-from .rubric_utils.load_params import get_label_params
+from .rubric_utils.load_params import get_label_params, get_max_seq_len
 
 
 if __name__ == "__main__":
@@ -43,6 +43,7 @@ if __name__ == "__main__":
     args.cuda = args.cuda and torch.cuda.is_available()
     merge_args_with_dict(args, default_hyperparams)
     device = torch.device('cuda' if args.cuda else 'cpu')
+    args.max_seq_len = get_max_seq_len(args.problem_id)
 
     label_dim, _, _, _, _ = get_label_params(args.problem_id)
 

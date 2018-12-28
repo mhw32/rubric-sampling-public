@@ -21,8 +21,10 @@ from .utils import (
     OrderedCounter,
     flatten_ast,
     removeColors,
+    PCFG_UTILS_ROOT,
 )
-from rubrics_utils.load_params import get_codeorg_data_root
+from .rubric_utils.load_params import get_codeorg_data_root, get_label_params
+sys.path.append(PCFG_UTILS_ROOT)
 
 
 def load_dataset(dataset, problem_id, split, vocab=None, max_seq_len=50, min_occ=3):
@@ -38,9 +40,7 @@ def load_dataset(dataset, problem_id, split, vocab=None, max_seq_len=50, min_occ
     Rest of the variables are inputs to CodeOrgDataset
     """
     assert dataset in ['unlabeled', 'annotated', 'synthetic']
-    data_dir = get_codeorg_data_root(problem_id, dataset)
-    
-    return CodeOrgDataset(  data_dir, problem_id, split, vocab=vocab, 
+    return CodeOrgDataset(  dataset, problem_id, split, vocab=vocab, 
                             max_seq_len=max_seq_len, min_occ=min_occ)
 
 
@@ -71,7 +71,9 @@ class CodeOrgDataset(Dataset):
         self.max_seq_len = max_seq_len
         self.min_occ = min_occ
 
+        self.label_dim, _, _, _, _ = get_label_params(problem_id)
         self.data_dir = get_codeorg_data_root(problem_id, dataset)
+        self.raw_dir = get_codeorg_data_root(problem_id, 'raw')
 
         with open(os.path.join(self.data_dir, '%s.pickle' % self.split)) as fp:
             raw_data = cPickle.load(fp)
@@ -109,7 +111,7 @@ class CodeOrgDataset(Dataset):
             i2w[len(w2i)] = st
             w2i[st] = len(w2i)
 
-        for program in self.data:
+        for program in data:
             tokens = program.split()
             w2c.update(tokens)
 
@@ -121,7 +123,8 @@ class CodeOrgDataset(Dataset):
         assert len(w2i) == len(i2w)
         print("Vocabulary of %i keys created." % len(w2i))
 
-        self.vocab = dict(w2i=w2i, i2w=i2w)
+        vocab = dict(w2i=w2i, i2w=i2w)
+        return vocab
 
     def process_programs(self, data):
         seqs, lengths = [], []
@@ -142,13 +145,15 @@ class CodeOrgDataset(Dataset):
         return seqs, lengths
 
     def process_labels(self, annotations):
-        raise NotImplementedError
+        labels = np.array(annotations)
+        labels = torch.from_numpy(labels).float()
+        return labels
 
     def build_count_map(self):
         # build a map from program to frequency
-        with open('%s/sources-%d.pickle' % (self.data_dir, self.problem_id)) as fp:
+        with open('%s/sources-%d.pickle' % (self.raw_dir, self.problem_id)) as fp:
             sources = cPickle.load(fp)
-        with open('%s/countMap-%d.pickle' % (self.data_dir, self.problem_id)) as fp:
+        with open('%s/countMap-%d.pickle' % (self.raw_dir, self.problem_id)) as fp:
             counts = cPickle.load(fp)
 
         count_map = defaultdict(lambda: 0)

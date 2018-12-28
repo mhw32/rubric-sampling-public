@@ -15,7 +15,8 @@ from nltk.parse.viterbi import ViterbiParser
 
 from ..pcfg_utils.simulate import loadCfg
 from ..pcfg_utils.treeToCode.astToBlocky import toBlocky
-from ..utils import flatten_ast
+from ..utils import flatten_ast, PCFG_UTILS_ROOT
+sys.path.append(PCFG_UTILS_ROOT)
 
 
 def pcfg_data_likelihood(cfg_path, weights, data, counts, epsilon=1e-10):
