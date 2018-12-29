@@ -1,6 +1,6 @@
 # rubric-sampling
 
-PyTorch implementation of the paper [Zero Shot Learning for Code Education: Rubric Sampling with Deep Learning Inference](https://arxiv.org/abs/1809.01357) by Mike Wu, Milan Mosse, Noah Goodman, and Chris Piech (AAAI 2019).
+PyTorch implementation of the paper [Zero Shot Learning for Code Education: Rubric Sampling with Deep Learning Inference](https://arxiv.org/abs/1809.01357) by Mike Wu, Milan Mosse, Noah Goodman, and Chris Piech (AAAI 2019 oral).
 
 ## About
 Massive open online courses (MOOCs) log thousands of hours of data about how students solve coding challenges. Being so rich in data, these platforms have garnered the interest of the machine learning community, where the challenge is to autonomously provide feedback to help students learn. **But annotating programs is expensive, especially since the space of possible programs is Zipfean.** This repository implements *rubric sampling*, a zero shot solution to scalable feedback prediction. Rubric sampling asks the human-in-the-loop to describe a generative process of student thinking in the form of a probabilistic context-free grammar (PCFG), which allows for infinite data generation and takes exponentially less time than labeling even a tiny dataset. Rubric sampling can be combined with either supervised networks or modern deep generative models (MVAE). We apply these methods to a Code.org curriculum, containing 8 exercises with 1,598,375 student solutions. 
